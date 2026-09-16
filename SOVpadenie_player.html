@@ -1,0 +1,1202 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+				<title>СОВпадение — Игрок</title>
+
+				<style>
+					* {
+					box-sizing: border-box;
+					}
+
+					body {
+					margin: 0;
+					min-height: 100vh;
+					font-family: Arial, sans-serif;
+					background: #f4f1ea;
+					color: #222;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					}
+
+					.app {
+					width: 100%;
+					max-width: 600px;
+					min-height: 100vh;
+					background: #fff;
+					padding: 20px;
+					display: flex;
+					flex-direction: column;
+					}
+
+					@media (min-width: 650px) {
+					body {
+					padding: 20px;
+					}
+
+					.app {
+					min-height: 700px;
+					max-height: 900px;
+					border-radius: 20px;
+					box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+					}
+					}
+
+					h1 {
+					text-align: center;
+					font-size: 38px;
+					margin: 25px 0 8px;
+					letter-spacing: 1px;
+					}
+
+					h2 {
+					text-align: center;
+					font-size: 27px;
+					margin: 15px 0;
+					}
+
+					h3 {
+					text-align: center;
+					margin: 10px 0;
+					}
+
+					.subtitle {
+					text-align: center;
+					color: #777;
+					margin-bottom: 30px;
+					}
+
+					.screen {
+					flex: 1;
+					display: flex;
+					flex-direction: column;
+					}
+
+					.center {
+					justify-content: center;
+					}
+
+					.hidden {
+					display: none !important;
+					}
+
+					.input {
+					width: 100%;
+					padding: 16px;
+					font-size: 18px;
+					border: 2px solid #ddd;
+					border-radius: 12px;
+					outline: none;
+					margin-bottom: 14px;
+					}
+
+					.input:focus {
+					border-color: #555;
+					}
+
+					.answer-input {
+					width: 100%;
+					padding: 14px;
+					font-size: 17px;
+					border: 2px solid #ddd;
+					border-radius: 10px;
+					outline: none;
+					margin-bottom: 10px;
+					}
+
+					.answer-input:focus {
+					border-color: #555;
+					}
+
+					button {
+					width: 100%;
+					padding: 16px;
+					border: none;
+					border-radius: 12px;
+					font-size: 18px;
+					font-weight: bold;
+					cursor: pointer;
+					background: #222;
+					color: white;
+					margin-top: 10px;
+					transition: 0.15s;
+					}
+
+					button:active {
+					transform: scale(0.98);
+					}
+
+					button.secondary {
+					background: #e9e9e9;
+					color: #222;
+					}
+
+					button.danger {
+					background: #b33;
+					}
+
+					.round-badge {
+					text-align: center;
+					font-size: 16px;
+					color: #777;
+					margin-bottom: 10px;
+					}
+
+					.round-type {
+					text-align: center;
+					font-size: 42px;
+					font-weight: bold;
+					margin: 15px 0 20px;
+					}
+
+					.round-description {
+					background: #f5f5f5;
+					border-radius: 14px;
+					padding: 18px;
+					text-align: center;
+					line-height: 1.5;
+					font-size: 17px;
+					margin-bottom: 20px;
+					}
+
+					.listen-box {
+					border: 2px dashed #bbb;
+					border-radius: 14px;
+					padding: 20px;
+					text-align: center;
+					margin-bottom: 20px;
+					background: #fafafa;
+					}
+
+					.listen-box strong {
+					display: block;
+					font-size: 19px;
+					margin-bottom: 8px;
+					}
+
+					.timer {
+					text-align: center;
+					font-size: 34px;
+					font-weight: bold;
+					margin: 10px 0 18px;
+					}
+
+					.timer.warning {
+					color: #c33;
+					}
+
+					.answers-container {
+					flex: 1;
+					overflow-y: auto;
+					padding-right: 2px;
+					}
+
+					.answer-row {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					}
+
+					.answer-number {
+					min-width: 28px;
+					font-size: 17px;
+					font-weight: bold;
+					color: #777;
+					text-align: center;
+					}
+
+					.answer-row .answer-input {
+					flex: 1;
+					}
+
+					.check-item {
+					display: flex;
+					align-items: center;
+					gap: 12px;
+					padding: 15px;
+					border: 2px solid #ddd;
+					border-radius: 12px;
+					margin-bottom: 10px;
+					cursor: pointer;
+					font-size: 17px;
+					}
+
+					.check-item input {
+					width: 23px;
+					height: 23px;
+					flex-shrink: 0;
+					}
+
+					.score-big {
+					text-align: center;
+					font-size: 70px;
+					font-weight: bold;
+					margin: 20px 0;
+					}
+
+					.bonus {
+					text-align: center;
+					font-size: 19px;
+					font-weight: bold;
+					margin-bottom: 15px;
+					}
+
+					.score-list {
+					margin: 20px 0;
+					}
+
+					.score-line {
+					display: flex;
+					justify-content: space-between;
+					padding: 12px 14px;
+					border-bottom: 1px solid #ddd;
+					font-size: 17px;
+					}
+
+					.total-score {
+					text-align: center;
+					font-size: 30px;
+					font-weight: bold;
+					margin: 25px 0;
+					}
+
+					.small-note {
+					color: #888;
+					text-align: center;
+					font-size: 14px;
+					line-height: 1.4;
+					margin-top: 12px;
+					}
+
+					.modal-overlay {
+					position: fixed;
+					inset: 0;
+					background: rgba(0,0,0,0.55);
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					padding: 20px;
+					z-index: 1000;
+					}
+
+					.modal-overlay.hidden {
+					display: none !important;
+					}
+
+					.modal {
+					width: 100%;
+					max-width: 420px;
+					background: white;
+					border-radius: 18px;
+					padding: 25px;
+					text-align: center;
+					}
+
+					.modal h2 {
+					margin-top: 0;
+					}
+
+					.modal-buttons {
+					display: flex;
+					gap: 10px;
+					margin-top: 15px;
+					}
+
+					.modal-buttons button {
+					margin-top: 0;
+					}
+
+					.spacer {
+					flex: 1;
+					}
+				</style>
+			</head>
+
+	<body>
+
+		<div class="app">
+
+			<!-- ЭКРАН 1: ИМЯ -->
+			<div id="screen-start" class="screen center">
+				<div>
+					<h1>СОВпадение</h1>
+					<div class="subtitle">Версия для игрока</div>
+
+					<input
+						id="player-name"
+						class="input"
+						type="text"
+						placeholder="Введите ваше имя"
+						autocomplete="off"
+            >
+
+						<button onclick="startGame()">Начать игру</button>
+
+						<div class="small-note">
+							Тему раунда объявляет ведущий.<br>
+                Здесь вы только вводите свои ответы.
+            </div>
+					</div>
+			</div>
+
+
+			<!-- ЭКРАН 2: НАЧАЛО РАУНДА -->
+			<div id="screen-round-intro" class="screen center hidden">
+
+				<div class="round-badge" id="intro-round-number">
+					Раунд 1 из 6
+				</div>
+
+				<div class="round-type" id="intro-round-type">
+					🦉 СОВЫ
+				</div>
+
+				<div class="round-description" id="intro-description">
+				</div>
+
+				<div class="listen-box">
+					<strong>🎤 Слушайте ведущего</strong>
+					Ведущий сейчас объявит тему раунда.
+				</div>
+
+				<button onclick="beginAnswering()">Я готов</button>
+
+			</div>
+
+
+			<!-- ЭКРАН 3: ВВОД ОТВЕТОВ -->
+			<div id="screen-answers" class="screen hidden">
+
+				<div class="round-badge" id="answers-round-number">
+					Раунд 1 из 6
+				</div>
+
+				<h2 id="answers-title">🦉 СОВЫ</h2>
+
+				<div class="timer" id="timer">
+					01:00
+				</div>
+
+				<div id="answers-instruction" class="small-note" style="margin-bottom: 15px;">
+				</div>
+
+				<div id="answers-container" class="answers-container">
+				</div>
+
+				<div class="spacer"></div>
+
+				<button onclick="confirmFinishRound()">
+					Готово
+				</button>
+
+			</div>
+
+
+			<!-- ЭКРАН 4: ПРОВЕРКА СОВПАДЕНИЙ -->
+			<div id="screen-check" class="screen hidden">
+
+				<div class="round-badge" id="check-round-number">
+					Раунд 1 из 6
+				</div>
+
+				<h2>Проверка ответов</h2>
+
+				<div class="small-note" style="margin-bottom: 20px;">
+					Отметьте ответы, которые совпали с ответами других игроков.
+				</div>
+
+				<div id="check-container" class="answers-container">
+				</div>
+
+				<div class="spacer"></div>
+
+				<button onclick="finishRound()">
+					Завершить раунд
+				</button>
+
+			</div>
+
+
+			<!-- ЭКРАН 5: РЕЗУЛЬТАТ РАУНДА -->
+			<div id="screen-result" class="screen center hidden">
+
+				<div class="round-badge" id="result-round-number">
+					Раунд 1
+				</div>
+
+				<h2>Раунд завершён</h2>
+
+				<div class="score-big" id="round-score">
+					0
+				</div>
+
+				<div class="bonus hidden" id="round-bonus">
+					🎉 Бонус +1
+				</div>
+
+				<div class="small-note">
+					очков за этот раунд
+				</div>
+
+				<div class="spacer"></div>
+
+				<button id="next-round-button" onclick="nextRound()">
+					Следующий раунд
+				</button>
+
+			</div>
+
+
+			<!-- ЭКРАН 6: ФИНАЛ -->
+			<div id="screen-final" class="screen center hidden">
+
+				<h1>🎉 Игра завершена!</h1>
+
+				<div class="subtitle" id="final-player-name">
+				</div>
+
+				<div class="total-score">
+					Всего: <span id="final-total-score">0</span>
+				</div>
+
+				<div id="final-score-list" class="score-list">
+				</div>
+
+				<div class="spacer"></div>
+
+				<button onclick="newGame()">
+					Новая игра
+				</button>
+
+			</div>
+
+		</div>
+
+
+		<!-- МОДАЛЬНОЕ ОКНО -->
+		<div id="confirm-modal" class="modal-overlay hidden">
+
+			<div class="modal">
+
+				<h2 id="modal-title">Вы уверены?</h2>
+
+				<div id="modal-text">
+					После подтверждения вернуться к ответам будет нельзя.
+				</div>
+
+				<div class="modal-buttons">
+					<button class="secondary" onclick="closeModal()">
+						Отмена
+					</button>
+
+					<button onclick="modalConfirmAction()">
+						Да
+					</button>
+				</div>
+
+			</div>
+
+		</div>
+
+
+		<script>
+
+			const ROUND_TYPES = {
+			1: {
+			type: "owls",
+			title: "🦉 СОВЫ",
+			description:
+			"Давайте самые очевидные и популярные ответы. Чем больше игроков дадут такой же ответ, тем больше очков вы получите.",
+			instruction:
+			"Слушайте тему ведущего и впишите 6 самых очевидных ответов."
+			},
+
+			2: {
+			type: "larks",
+			title: "🐦 ЖАВОРОНКИ",
+			description:
+			"Здесь наоборот: старайтесь давать необычные ответы, которые не придут в голову большинству игроков.",
+			instruction:
+			"Слушайте тему ведущего и впишите 6 необычных ответов."
+			},
+
+			3: {
+			type: "blitz",
+			title: "⚡ БЛИЦ",
+			description:
+			"Ведущий последовательно объявит 6 разных категорий. На каждую категорию нужен один ответ.",
+			instruction:
+			"Слушайте ведущего. Впишите по одному ответу на каждую из 6 категорий."
+			},
+
+			4: {
+			type: "owls",
+			title: "🦉 СОВЫ",
+			description:
+			"Давайте самые очевидные и популярные ответы. Чем больше игроков дадут такой же ответ, тем больше очков вы получите.",
+			instruction:
+			"Слушайте тему ведущего и впишите 6 самых очевидных ответов."
+			},
+
+			5: {
+			type: "larks",
+			title: "🐦 ЖАВОРОНКИ",
+			description:
+			"Старайтесь давать необычные ответы, которые не придут в голову большинству игроков.",
+			instruction:
+			"Слушайте тему ведущего и впишите 6 необычных ответов."
+			},
+
+			6: {
+			type: "blitz",
+			title: "⚡ БЛИЦ",
+			description:
+			"Ведущий последовательно объявит 6 разных категорий. На каждую категорию нужен один ответ.",
+			instruction:
+			"Слушайте ведущего. Впишите по одному ответу на каждую из 6 категорий."
+			}
+			};
+
+
+			let game = {
+			playerName: "",
+			currentRound: 1,
+			totalScore: 0,
+			roundScores: [],
+			answers: [],
+			timerSeconds: 60,
+			timerInterval: null
+			};
+
+
+			let modalAction = null;
+
+
+			// --------------------------------------------------
+			// СОХРАНЕНИЕ
+			// --------------------------------------------------
+
+			function saveGame() {
+			const data = {
+			playerName: game.playerName,
+			currentRound: game.currentRound,
+			totalScore: game.totalScore,
+			roundScores: game.roundScores,
+			answers: game.answers
+			};
+
+			localStorage.setItem(
+			"sovpadenie_player_game",
+			JSON.stringify(data)
+			);
+			}
+
+
+			function loadGame() {
+
+			const saved = localStorage.getItem("sovpadenie_player_game");
+
+			if (!saved) {
+			return false;
+			}
+
+			try {
+
+			const data = JSON.parse(saved);
+
+			if (!data.playerName) {
+			return false;
+			}
+
+			game.playerName = data.playerName;
+			game.currentRound = data.currentRound || 1;
+			game.totalScore = data.totalScore || 0;
+			game.roundScores = data.roundScores || [];
+			game.answers = data.answers || [];
+
+			return true;
+
+			} catch (e) {
+			return false;
+			}
+			}
+
+
+			// --------------------------------------------------
+			// ЭКРАНЫ
+			// --------------------------------------------------
+
+			function showScreen(id) {
+
+			document.querySelectorAll(".screen").forEach(screen => {
+			screen.classList.add("hidden");
+			});
+
+			document.getElementById(id).classList.remove("hidden");
+			}
+
+
+			// --------------------------------------------------
+			// НАЧАЛО ИГРЫ
+			// --------------------------------------------------
+
+			function startGame() {
+
+			const nameInput = document.getElementById("player-name");
+			const name = nameInput.value.trim();
+
+			if (!name) {
+			nameInput.focus();
+			return;
+			}
+
+			game = {
+			playerName: name,
+			currentRound: 1,
+			totalScore: 0,
+			roundScores: [],
+			answers: [],
+			timerSeconds: 60,
+			timerInterval: null
+			};
+
+			saveGame();
+
+			showRoundIntro();
+			}
+
+
+			// --------------------------------------------------
+			// НАЧАЛО РАУНДА
+			// --------------------------------------------------
+
+			function showRoundIntro() {
+
+			const info = ROUND_TYPES[game.currentRound];
+
+			document.getElementById("intro-round-number").textContent =
+			`Раунд ${game.currentRound} из 6`;
+
+			document.getElementById("intro-round-type").textContent =
+			info.title;
+
+			document.getElementById("intro-description").textContent =
+			info.description;
+
+			showScreen("screen-round-intro");
+			}
+
+
+			// --------------------------------------------------
+			// НАЧАТЬ ОТВЕЧАТЬ
+			// --------------------------------------------------
+
+			function beginAnswering() {
+
+			const info = ROUND_TYPES[game.currentRound];
+
+			document.getElementById("answers-round-number").textContent =
+			`Раунд ${game.currentRound} из 6`;
+
+			document.getElementById("answers-title").textContent =
+			info.title;
+
+			document.getElementById("answers-instruction").textContent =
+			info.instruction;
+
+			createAnswerFields();
+
+			startTimer();
+
+			showScreen("screen-answers");
+
+			setTimeout(() => {
+
+			const first = document.querySelector(".answer-input");
+
+			if (first) {
+			first.focus();
+			}
+
+			}, 100);
+			}
+
+
+			// --------------------------------------------------
+			// ПОЛЯ ОТВЕТОВ
+			// --------------------------------------------------
+
+			function createAnswerFields() {
+
+			const container = document.getElementById("answers-container");
+
+			container.innerHTML = "";
+
+			const info = ROUND_TYPES[game.currentRound];
+
+			for (let i = 0; i < 6; i++) {
+
+        const row = document.createElement("div");
+        row.className = "answer-row";
+
+        const number = document.createElement("div");
+        number.className = "answer-number";
+        number.textContent = `${i + 1}.`;
+
+        const input = document.createElement("input");
+
+        input.type = "text";
+        input.className = "answer-input";
+        input.autocomplete = "off";
+        input.placeholder =
+            info.type === "blitz"
+                ? `Ответ на категорию ${i + 1}`
+                : `Ответ ${i + 1}`;
+
+        input.value = game.answers[i] || "";
+
+        input.addEventListener("input", () => {
+            game.answers[i] = input.value;
+            saveGame();
+        });
+
+        row.appendChild(number);
+        row.appendChild(input);
+
+        container.appendChild(row);
+    }
+}
+
+
+// --------------------------------------------------
+// ТАЙМЕР
+// --------------------------------------------------
+
+function startTimer() {
+
+    clearInterval(game.timerInterval);
+
+    game.timerSeconds = 60;
+
+    updateTimer();
+
+    game.timerInterval = setInterval(() => {
+
+        game.timerSeconds--;
+
+        updateTimer();
+
+        if (game.timerSeconds <= 0) {
+
+			clearInterval(game.timerInterval);
+
+			document.getElementById("timer").textContent =
+			"Время вышло";
+
+			document.getElementById("timer").classList.add("warning");
+			}
+
+			}, 1000);
+			}
+
+
+			function updateTimer() {
+
+			const timer = document.getElementById("timer");
+
+			const minutes =
+			Math.floor(game.timerSeconds / 60)
+			.toString()
+			.padStart(2, "0");
+
+			const seconds =
+			(game.timerSeconds % 60)
+			.toString()
+			.padStart(2, "0");
+
+			timer.textContent = `${minutes}:${seconds}`;
+
+			if (game.timerSeconds <= 10) {
+			timer.classList.add("warning");
+			} else {
+			timer.classList.remove("warning");
+			}
+			}
+
+
+			// --------------------------------------------------
+			// ПОДТВЕРЖДЕНИЕ "ГОТОВО"
+			// --------------------------------------------------
+
+			function confirmFinishRound() {
+
+			openModal(
+			"Закончить ввод?",
+			"После подтверждения изменить ответы будет нельзя.",
+			() => {
+			openCheckScreen();
+			}
+			);
+			}
+
+
+			// --------------------------------------------------
+			// ПРОВЕРКА ОТВЕТОВ
+			// --------------------------------------------------
+
+			function openCheckScreen() {
+
+			clearInterval(game.timerInterval);
+
+			const container =
+			document.getElementById("check-container");
+
+			container.innerHTML = "";
+
+			document.getElementById("check-round-number").textContent =
+			`Раунд ${game.currentRound} из 6`;
+
+			for (let i = 0; i < 6; i++) {
+
+        const answer =
+            (game.answers[i] || "").trim();
+
+        const item =
+            document.createElement("label");
+
+        item.className = "check-item";
+
+        const checkbox =
+            document.createElement("input");
+
+        checkbox.type = "checkbox";
+        checkbox.dataset.index = i;
+
+        const text =
+            document.createElement("span");
+
+        text.textContent =
+            answer || `Ответ ${i + 1} — пусто`;
+
+        item.appendChild(checkbox);
+        item.appendChild(text);
+
+        container.appendChild(item);
+    }
+
+    showScreen("screen-check");
+}
+
+
+// --------------------------------------------------
+// ЗАВЕРШЕНИЕ РАУНДА
+// --------------------------------------------------
+
+function finishRound() {
+
+    const info = ROUND_TYPES[game.currentRound];
+
+    const checkboxes =
+        document.querySelectorAll(
+            '#check-container input[type="checkbox"]'
+        );
+
+    const matched = [];
+
+    checkboxes.forEach(checkbox => {
+        matched.push(checkbox.checked);
+    });
+
+    let score = 0;
+    let bonus = 0;
+
+    if (info.type === "owls") {
+
+        // Каждое совпадение = 1 очко
+        score =
+            matched.filter(Boolean).length;
+
+    } else if (info.type === "larks") {
+
+        // Каждое НЕсовпадение = 1 очко
+        const matches =
+            matched.filter(Boolean).length;
+
+        score = 6 - matches;
+
+        // Если не совпал ни один ответ — бонус +1
+        if (matches === 0) {
+            bonus = 1;
+            score += 1;
+        }
+
+    } else if (info.type === "blitz") {
+
+        // Каждое совпадение = 1 очко
+        const matches =
+            matched.filter(Boolean).length;
+
+        score = matches;
+
+        // Если совпали все 6 — бонус +1
+        if (matches === 6) {
+            bonus = 1;
+            score += 1;
+        }
+    }
+
+    game.totalScore += score;
+
+    game.roundScores.push({
+        round: game.currentRound,
+        score: score,
+        bonus: bonus
+    });
+
+    saveGame();
+
+    showRoundResult(score, bonus);
+}
+
+
+// --------------------------------------------------
+// РЕЗУЛЬТАТ
+// --------------------------------------------------
+
+function showRoundResult(score, bonus) {
+
+    document.getElementById("result-round-number").textContent =
+        `Раунд ${game.currentRound} из 6`;
+
+    document.getElementById("round-score").textContent =
+        score;
+
+    const bonusElement =
+        document.getElementById("round-bonus");
+
+    if (bonus > 0) {
+        bonusElement.textContent =
+            `🎉 Бонус +${bonus}`;
+
+        bonusElement.classList.remove("hidden");
+    } else {
+        bonusElement.classList.add("hidden");
+    }
+
+    const button =
+        document.getElementById("next-round-button");
+
+    if (game.currentRound >= 6) {
+        button.textContent = "Завершить игру";
+    } else {
+        button.textContent = "Следующий раунд";
+    }
+
+    showScreen("screen-result");
+}
+
+
+// --------------------------------------------------
+// СЛЕДУЮЩИЙ РАУНД
+// --------------------------------------------------
+
+function nextRound() {
+
+    if (game.currentRound >= 6) {
+        showFinal();
+        return;
+    }
+
+    game.currentRound++;
+
+    game.answers = [];
+
+    saveGame();
+
+    showRoundIntro();
+}
+
+
+// --------------------------------------------------
+// ФИНАЛ
+// --------------------------------------------------
+
+function showFinal() {
+
+    document.getElementById("final-player-name").textContent =
+        game.playerName;
+
+    document.getElementById("final-total-score").textContent =
+        game.totalScore;
+
+    const list =
+        document.getElementById("final-score-list");
+
+    list.innerHTML = "";
+
+    game.roundScores.forEach(item => {
+
+        const line =
+            document.createElement("div");
+
+        line.className = "score-line";
+
+        const name =
+            document.createElement("span");
+
+        const type =
+            ROUND_TYPES[item.round];
+
+        name.textContent =
+            `Раунд ${item.round} — ${type.title}`;
+
+        const score =
+            document.createElement("strong");
+
+        score.textContent =
+            `${item.score}`;
+
+        line.appendChild(name);
+        line.appendChild(score);
+
+        list.appendChild(line);
+    });
+
+    localStorage.removeItem("sovpadenie_player_game");
+
+    showScreen("screen-final");
+}
+
+
+// --------------------------------------------------
+// НОВАЯ ИГРА
+// --------------------------------------------------
+
+function newGame() {
+
+    openModal(
+        "Начать новую игру?",
+        "Текущий прогресс будет сброшен.",
+        () => {
+
+            localStorage.removeItem(
+                "sovpadenie_player_game"
+            );
+
+            clearInterval(game.timerInterval);
+
+            game = {
+                playerName: "",
+                currentRound: 1,
+                totalScore: 0,
+                roundScores: [],
+                answers: [],
+                timerSeconds: 60,
+                timerInterval: null
+            };
+
+            document.getElementById("player-name").value = "";
+
+            closeModal();
+
+            showScreen("screen-start");
+        }
+    );
+}
+
+
+// --------------------------------------------------
+// МОДАЛЬНОЕ ОКНО
+// --------------------------------------------------
+
+function openModal(title, text, action) {
+
+    document.getElementById("modal-title").textContent =
+        title;
+
+    document.getElementById("modal-text").textContent =
+        text;
+
+    modalAction = action;
+
+    document
+        .getElementById("confirm-modal")
+        .classList.remove("hidden");
+}
+
+
+function closeModal() {
+
+    document
+        .getElementById("confirm-modal")
+        .classList.add("hidden");
+
+    modalAction = null;
+}
+
+
+function modalConfirmAction() {
+
+    if (modalAction) {
+
+        const action = modalAction;
+
+        modalAction = null;
+
+        document
+            .getElementById("confirm-modal")
+            .classList.add("hidden");
+
+        action();
+    }
+}
+
+
+// --------------------------------------------------
+// ВОССТАНОВЛЕНИЕ ИГРЫ
+// --------------------------------------------------
+
+window.addEventListener("load", () => {
+
+    if (loadGame()) {
+
+        openModal(
+            "Продолжить игру?",
+            `У вас сохранён прогресс, игрок: ${game.playerName}.`,
+            () => {
+
+                closeModal();
+
+                if (game.roundScores.length >= 6) {
+                    showFinal();
+                } else {
+                    showRoundIntro();
+                }
+            }
+        );
+
+    }
+
+});
+
+
+// --------------------------------------------------
+// ENTER В ПОЛЕ ИМЕНИ
+// --------------------------------------------------
+
+document
+    .getElementById("player-name")
+    .addEventListener("keydown", event => {
+
+        if (event.key === "Enter") {
+            startGame();
+        }
+
+    });
+
+		</script>
+
+	</body>
+</html>
