@@ -534,6 +534,10 @@
                 <div id="introBlitzList" class="blitz-list"></div>
             </div>
 
+            <button id="rerollBlitzButton" class="btn btn-secondary hidden" type="button" onclick="rerollBlitz()">
+                🎲 Другой пак
+            </button>
+
             <button class="btn btn-primary" onclick="requestStartRound()">
                 Начать раунд
             </button>
@@ -2217,26 +2221,61 @@ function rerollTopic() {
 
 function getRandomUnusedBlitz() {
 
-    let available = BLITZ_CARDS.filter(
-        (_, index) => !game.usedBlitzCards.includes(index)
-    );
+    let availableIndices = BLITZ_CARDS
+        .map((_, index) => index)
+        .filter(index => !game.usedBlitzCards.includes(index));
 
-    if (available.length === 0) {
+    if (availableIndices.length === 0) {
         game.usedBlitzCards = [];
-        available = [...BLITZ_CARDS];
+        availableIndices = BLITZ_CARDS.map((_, index) => index);
     }
 
-    const randomIndex =
-        Math.floor(Math.random() * available.length);
-
-    const selected = available[randomIndex];
-
-    const realIndex = BLITZ_CARDS.indexOf(selected);
+    const realIndex =
+        availableIndices[Math.floor(Math.random() * availableIndices.length)];
 
     game.usedBlitzCards.push(realIndex);
     game.currentBlitzCode = realIndex + 1;
 
-    return [...selected];
+    return [...BLITZ_CARDS[realIndex]];
+}
+
+
+function rerollBlitz() {
+
+    const info = ROUND_TYPES[game.currentRound];
+
+    if (!info || info.type !== "blitz") return;
+
+    const currentIndex = Number(game.currentBlitzCode) - 1;
+
+    // Пока есть другие неиспользованные паки — выбираем только из них.
+    let availableIndices = BLITZ_CARDS
+        .map((_, index) => index)
+        .filter(index =>
+            !game.usedBlitzCards.includes(index) &&
+            index !== currentIndex
+        );
+
+    // Если все паки уже были использованы, начинаем новый цикл,
+    // но всё равно не оставляем текущий пак тем же самым.
+    if (availableIndices.length === 0) {
+        game.usedBlitzCards = currentIndex >= 0 ? [currentIndex] : [];
+        availableIndices = BLITZ_CARDS
+            .map((_, index) => index)
+            .filter(index => index !== currentIndex);
+    }
+
+    const realIndex =
+        availableIndices[Math.floor(Math.random() * availableIndices.length)];
+
+    game.usedBlitzCards.push(realIndex);
+    game.currentBlitzCode = realIndex + 1;
+    game.currentBlitz = [...BLITZ_CARDS[realIndex]];
+    game.answers = [];
+    game.roundBonus = 0;
+
+    saveGame();
+    updateRoundIntro();
 }
 
 
@@ -2269,9 +2308,13 @@ function updateRoundIntro() {
     const rerollButton =
         document.getElementById("rerollTopicButton");
 
+    const rerollBlitzButton =
+        document.getElementById("rerollBlitzButton");
+
     if (info.type === "blitz") {
 
         rerollButton.classList.add("hidden");
+        rerollBlitzButton.classList.remove("hidden");
 
         topicBox.classList.add("hidden");
         blitzBox.classList.remove("hidden");
@@ -2310,6 +2353,7 @@ function updateRoundIntro() {
         blitzBox.classList.add("hidden");
         topicBox.classList.remove("hidden");
         rerollButton.classList.remove("hidden");
+        rerollBlitzButton.classList.add("hidden");
 
         document.getElementById("introTopic").textContent =
             game.currentTopic;
