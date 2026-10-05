@@ -1,0 +1,1979 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>СОВпадение — игра по сети</title>
+
+<style>
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f3f4f6;
+        color: #171717;
+    }
+
+    button,
+    input {
+        font: inherit;
+    }
+
+    .screen {
+        min-height: 100vh;
+        padding: 22px 16px 30px;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .container {
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    /* ---------- HEADER ---------- */
+
+    .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .game-title {
+        font-size: 27px;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+    }
+
+    .round-counter {
+        background: #171717;
+        color: white;
+        padding: 8px 13px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    /* ---------- CARDS ---------- */
+
+    .card {
+        background: white;
+        border-radius: 22px;
+        padding: 22px;
+        box-shadow: 0 5px 22px rgba(0,0,0,0.07);
+        margin-bottom: 16px;
+    }
+
+    .welcome {
+        text-align: center;
+        padding-top: 50px;
+    }
+
+    .logo {
+        font-size: 56px;
+        margin-bottom: 10px;
+    }
+
+    h1 {
+        margin: 0 0 10px;
+        font-size: 36px;
+    }
+
+    h2 {
+        margin: 0 0 12px;
+        font-size: 25px;
+    }
+
+    h3 {
+        margin: 0 0 10px;
+        font-size: 19px;
+    }
+
+    .subtitle {
+        color: #666;
+        line-height: 1.5;
+        margin-bottom: 25px;
+    }
+
+    /* ---------- INPUT ---------- */
+
+    .input-label {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="tel"] {
+        width: 100%;
+        border: 2px solid #e2e2e2;
+        border-radius: 14px;
+        padding: 15px;
+        font-size: 18px;
+        outline: none;
+        background: #fff;
+    }
+
+    input[type="text"]:focus,
+    input[type="tel"]:focus {
+        border-color: #171717;
+    }
+
+    input.code-input {
+        text-align: center;
+        font-size: 32px;
+        font-weight: 900;
+        letter-spacing: 10px;
+    }
+
+    /* ---------- BUTTONS ---------- */
+
+    .btn {
+        width: 100%;
+        border: 0;
+        border-radius: 15px;
+        padding: 16px 18px;
+        font-weight: 800;
+        font-size: 17px;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: transform .08s ease;
+    }
+
+    .btn:active {
+        transform: scale(.98);
+    }
+
+    .btn:disabled {
+        opacity: .5;
+        cursor: default;
+    }
+
+    .btn-primary {
+        background: #171717;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #eeeeee;
+        color: #171717;
+    }
+
+    .btn-danger {
+        background: #ffe1e1;
+        color: #b00000;
+    }
+
+    .btn-green {
+        background: #dff7e7;
+        color: #176b36;
+    }
+
+    /* ---------- ROUND TYPE ---------- */
+
+    .round-type {
+        text-align: center;
+        padding: 18px 10px;
+    }
+
+    .round-icon {
+        font-size: 58px;
+        margin-bottom: 8px;
+    }
+
+    .round-name {
+        font-size: 31px;
+        font-weight: 900;
+    }
+
+    .round-description {
+        color: #666;
+        line-height: 1.45;
+        margin-top: 8px;
+    }
+
+    /* ---------- TOPIC ---------- */
+
+    .topic-box {
+        background: #f1f1f1;
+        border-radius: 18px;
+        padding: 22px;
+        text-align: center;
+        margin: 15px 0 20px;
+    }
+
+    .topic-label {
+        font-size: 13px;
+        text-transform: uppercase;
+        color: #777;
+        font-weight: 800;
+        letter-spacing: 1px;
+        margin-bottom: 9px;
+    }
+
+    .topic {
+        font-size: 26px;
+        font-weight: 900;
+        line-height: 1.2;
+    }
+
+    /* ---------- TIMER ---------- */
+
+    .timer {
+        position: sticky;
+        top: 8px;
+        z-index: 10;
+        width: 100%;
+        text-align: center;
+        background: #171717;
+        color: white;
+        border-radius: 14px;
+        padding: 12px;
+        font-size: 25px;
+        font-weight: 900;
+        margin-bottom: 14px;
+        box-shadow: 0 5px 15px rgba(0,0,0,.15);
+    }
+
+    .timer.warning {
+        background: #a64b00;
+    }
+
+    .timer.finished {
+        background: #b00000;
+    }
+
+    /* ---------- ANSWERS ---------- */
+
+    .answers {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .answer-row {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .answer-number {
+        min-width: 29px;
+        height: 29px;
+        border-radius: 50%;
+        background: #ededed;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 13px;
+        font-weight: 800;
+        color: #555;
+    }
+
+    .answer-row input {
+        flex: 1;
+    }
+
+    /* ---------- BLITZ ---------- */
+
+    .blitz-item {
+        border: 2px solid #ededed;
+        border-radius: 17px;
+        padding: 14px;
+        margin-bottom: 10px;
+    }
+
+    .blitz-category {
+        font-weight: 900;
+        font-size: 17px;
+        margin-bottom: 9px;
+    }
+
+    .blitz-item input {
+        width: 100%;
+    }
+
+    /* ---------- CHECKING ---------- */
+
+    .check-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        border-radius: 15px;
+        background: #f3f3f3;
+        margin-bottom: 9px;
+        cursor: pointer;
+    }
+
+    .check-row input {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+
+    .check-answer {
+        font-size: 17px;
+        font-weight: 700;
+        word-break: break-word;
+    }
+
+    .check-hint {
+        color: #777;
+        font-size: 14px;
+        line-height: 1.4;
+        margin-bottom: 15px;
+    }
+
+    /* ---------- SCORE ---------- */
+
+    .score-box {
+        text-align: center;
+        padding: 24px 10px;
+    }
+
+    .score-number {
+        font-size: 72px;
+        line-height: 1;
+        font-weight: 900;
+        margin: 10px 0;
+    }
+
+    .score-label {
+        color: #777;
+        font-size: 15px;
+    }
+
+    /* ---------- ROOM CODE ---------- */
+
+    .room-code-big {
+        text-align: center;
+        font-size: 48px;
+        font-weight: 900;
+        letter-spacing: 8px;
+        background: #f1f1f1;
+        border-radius: 18px;
+        padding: 20px 10px;
+        margin: 6px 0 6px;
+    }
+
+    .room-code-hint {
+        text-align: center;
+        color: #777;
+        font-size: 14px;
+        margin-bottom: 18px;
+    }
+
+    /* ---------- PLAYER LIST / LEADERBOARD ---------- */
+
+    .player-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .player-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 13px 15px;
+        border-radius: 14px;
+        background: #f3f3f3;
+    }
+
+    .player-row.offline {
+        opacity: .45;
+    }
+
+    .player-left {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-width: 0;
+    }
+
+    .player-name {
+        font-weight: 700;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .dot {
+        width: 9px;
+        height: 9px;
+        min-width: 9px;
+        border-radius: 50%;
+        background: #1fa84c;
+    }
+
+    .player-row.offline .dot {
+        background: #bbb;
+    }
+
+    .badge {
+        font-size: 11px;
+        font-weight: 800;
+        border-radius: 999px;
+        padding: 3px 9px;
+        white-space: nowrap;
+    }
+
+    .badge-host {
+        background: #171717;
+        color: #fff;
+    }
+
+    .badge-submitted {
+        background: #dff7e7;
+        color: #176b36;
+    }
+
+    .player-score {
+        font-weight: 900;
+        font-size: 17px;
+        white-space: nowrap;
+    }
+
+    .leaderboard-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px;
+        border-radius: 15px;
+        background: #f2f2f2;
+        margin-bottom: 9px;
+    }
+
+    .leaderboard-row.first {
+        background: #fff6d8;
+    }
+
+    .rank {
+        font-weight: 900;
+        font-size: 18px;
+        min-width: 26px;
+        text-align: center;
+    }
+
+    .leaderboard-name {
+        flex: 1;
+        font-weight: 800;
+        font-size: 17px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .leaderboard-score {
+        font-weight: 900;
+        font-size: 19px;
+    }
+
+    /* ---------- MODAL ---------- */
+
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.55);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+    }
+
+    .modal-overlay.hidden {
+        display: none;
+    }
+
+    .modal {
+        width: 100%;
+        max-width: 430px;
+        background: white;
+        border-radius: 22px;
+        padding: 24px;
+        box-shadow: 0 15px 50px rgba(0,0,0,.25);
+    }
+
+    .modal h3 {
+        font-size: 23px;
+        margin-bottom: 9px;
+    }
+
+    .modal p {
+        color: #666;
+        line-height: 1.45;
+        margin-bottom: 18px;
+    }
+
+    /* ---------- CONNECTION BANNER ---------- */
+
+    .conn-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #a64b00;
+        color: #fff;
+        text-align: center;
+        padding: 10px;
+        font-weight: 800;
+        font-size: 14px;
+        z-index: 2000;
+        transform: translateY(-120%);
+        transition: transform .25s ease;
+    }
+
+    .conn-banner.show {
+        transform: translateY(0);
+    }
+
+    /* ---------- SMALL ---------- */
+
+    .muted {
+        color: #777;
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .spacer {
+        height: 8px;
+    }
+</style>
+</head>
+
+<body>
+
+<div id="connBanner" class="conn-banner">Переподключение...</div>
+
+<!-- =========================================================
+     СТАРТОВЫЙ ЭКРАН
+========================================================= -->
+
+<div id="screen-start" class="screen app-screen">
+    <div class="container">
+        <div class="welcome">
+            <div class="logo">🦉</div>
+            <h1>СОВпадение</h1>
+            <div class="subtitle">Игра по сети. Один создаёт комнату — остальные присоединяются по коду.</div>
+        </div>
+
+        <div class="card">
+            <button class="btn btn-primary" onclick="showScreen('screen-create')">Создать комнату (я ведущий)</button>
+            <button class="btn btn-secondary" onclick="showScreen('screen-join')">Присоединиться к игре</button>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     СОЗДАНИЕ КОМНАТЫ
+========================================================= -->
+
+<div id="screen-create" class="screen app-screen hidden">
+    <div class="container">
+        <div class="card">
+            <h2>Вы — ведущий</h2>
+            <div class="subtitle">Введите своё имя. Вы тоже играете вместе со всеми.</div>
+
+            <label class="input-label">Ваше имя</label>
+            <input type="text" id="createNameInput" maxlength="30" placeholder="Например, Андрей" autocomplete="off">
+
+            <button class="btn btn-primary" onclick="actionCreateRoom()">Создать комнату</button>
+            <button class="btn btn-secondary" onclick="showScreen('screen-start')">Назад</button>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     ПРИСОЕДИНЕНИЕ К ИГРЕ
+========================================================= -->
+
+<div id="screen-join" class="screen app-screen hidden">
+    <div class="container">
+        <div class="card">
+            <h2>Присоединиться</h2>
+            <div class="subtitle">Введите код, который назвал ведущий, и своё имя.</div>
+
+            <label class="input-label">Код комнаты</label>
+            <input type="tel" inputmode="numeric" class="code-input" id="joinCodeInput" maxlength="4" placeholder="0000" autocomplete="off">
+
+            <div class="spacer"></div>
+
+            <label class="input-label">Ваше имя</label>
+            <input type="text" id="joinNameInput" maxlength="30" placeholder="Например, Маша" autocomplete="off">
+
+            <button class="btn btn-primary" onclick="actionJoinRoom()">Присоединиться</button>
+            <button class="btn btn-secondary" onclick="showScreen('screen-start')">Назад</button>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================
+     ЛОББИ / ОЖИДАНИЕ СТАРТА РАУНДА
+========================================================= -->
+
+<div id="screen-lobby" class="screen app-screen hidden">
+    <div class="container">
+
+        <div class="topbar">
+            <div class="game-title">СОВпадение</div>
+            <div class="round-counter" id="lobbyRoundCounter"></div>
+        </div>
+
+        <div id="lobbyRoomCodeBlock" class="card hidden">
+            <div class="room-code-big" id="lobbyRoomCode"></div>
+            <div class="room-code-hint">Код комнаты — продиктуйте его остальным игрокам</div>
+        </div>
+
+        <div class="card">
+            <div class="round-type">
+                <div class="round-icon" id="lobbyRoundIcon"></div>
+                <div class="round-name" id="lobbyRoundName"></div>
+                <div class="round-description" id="lobbyRoundDescription"></div>
+            </div>
+
+            <div id="lobbyHostControls" class="hidden">
+                <button class="btn btn-primary" id="lobbyStartBtn" onclick="actionStartRound()">Начать раунд</button>
+            </div>
+
+            <div id="lobbyWaitMessage" class="muted center hidden">
+                Ожидайте, пока ведущий начнёт раунд...
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Игроки</h3>
+            <div class="player-list" id="lobbyPlayerList"></div>
+        </div>
+
+    </div>
+</div>
+
+<!-- =========================================================
+     ЭКРАН ОТВЕТОВ (ИДЁТ ТАЙМЕР)
+========================================================= -->
+
+<div id="screen-answering" class="screen app-screen hidden">
+    <div class="container">
+
+        <div class="topbar">
+            <div class="game-title">СОВпадение</div>
+            <div class="round-counter" id="answerRoundCounter"></div>
+        </div>
+
+        <div id="timer" class="timer">1:00</div>
+
+        <div class="card">
+            <div id="answerTopicBox">
+                <div class="topic-label">Тема</div>
+                <div id="answerTopic" class="topic"></div>
+            </div>
+
+            <div id="answerInstruction" class="muted" style="margin:15px 0;"></div>
+
+            <div id="answersContainer" class="answers"></div>
+
+            <button class="btn btn-primary" onclick="actionFinishAnswering()">Готово</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- =========================================================
+     ЭКРАН ПРОВЕРКИ СОВПАДЕНИЙ
+========================================================= -->
+
+<div id="screen-checking" class="screen app-screen hidden">
+    <div class="container">
+
+        <div class="topbar">
+            <div class="game-title">СОВпадение</div>
+            <div class="round-counter" id="checkRoundCounter"></div>
+        </div>
+
+        <div class="card">
+            <div id="checkIcon" class="round-icon center"></div>
+            <h2 id="checkTitle" class="center"></h2>
+            <div id="checkInstruction" class="check-hint"></div>
+            <div id="checkContainer"></div>
+
+            <button class="btn btn-primary" onclick="actionSubmitScore()">Подтвердить результат</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- =========================================================
+     ОЖИДАНИЕ ОСТАЛЬНЫХ / РЕЗУЛЬТАТ РАУНДА
+========================================================= -->
+
+<div id="screen-round-wait" class="screen app-screen hidden">
+    <div class="container">
+
+        <div class="topbar">
+            <div class="game-title">СОВпадение</div>
+            <div class="round-counter" id="waitRoundCounter"></div>
+        </div>
+
+        <div class="card">
+            <div class="score-box">
+                <div class="score-label">Ваш результат за раунд</div>
+                <div class="score-number" id="waitScoreNumber">0</div>
+                <div class="score-label" id="waitBonusLabel"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Общий счёт</h3>
+            <div class="player-list" id="waitPlayerList"></div>
+        </div>
+
+        <div id="waitHostControls" class="card hidden">
+            <button class="btn btn-primary" id="waitNextBtn" onclick="actionNextRound()">Следующий раунд</button>
+            <div class="muted center" id="waitPendingText" style="margin-top:10px;"></div>
+            <button class="btn btn-secondary hidden" id="waitForceBtn" onclick="actionForceNextRound()" style="margin-top:4px;">Всё равно продолжить</button>
+        </div>
+
+        <div id="waitNonHostMessage" class="muted center hidden">
+            Ожидаем, пока ведущий начнёт следующий раунд...
+        </div>
+
+    </div>
+</div>
+
+<!-- =========================================================
+     ФИНАЛЬНЫЙ ЭКРАН
+========================================================= -->
+
+<div id="screen-final" class="screen app-screen hidden">
+    <div class="container">
+
+        <div class="welcome" style="padding-top:20px;">
+            <div class="logo">🏆</div>
+            <h1>Игра окончена!</h1>
+        </div>
+
+        <div class="card">
+            <div id="finalLeaderboard"></div>
+        </div>
+
+        <div id="finalHostControls" class="hidden">
+            <button class="btn btn-primary" onclick="actionRestartGame()">Новая игра (та же компания)</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- =========================================================
+     ИГРА ЗАВЕРШЕНА ВЕДУЩИМ ДОСРОЧНО
+========================================================= -->
+
+<div id="screen-ended" class="screen app-screen hidden">
+    <div class="container">
+
+        <div class="welcome" style="padding-top:60px;">
+            <div class="logo">🛑</div>
+            <h1>Игра завершена</h1>
+            <div class="subtitle">Ведущий закончил игру досрочно.</div>
+        </div>
+
+        <div class="card">
+            <button class="btn btn-primary" onclick="actionReturnToStart()">На главный экран</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- =========================================================
+     ПЛАВАЮЩАЯ КНОПКА «ЗАВЕРШИТЬ ИГРУ» (только у ведущего)
+========================================================= -->
+
+<div id="endGameFloatBtn" class="hidden" style="position:fixed; bottom:16px; right:16px; z-index:500;">
+    <button class="btn btn-danger" style="width:auto; margin:0; padding:12px 18px; box-shadow:0 5px 18px rgba(0,0,0,.2);" onclick="actionEndGame()">
+        Завершить игру
+    </button>
+</div>
+
+<!-- =========================================================
+     МОДАЛЬНОЕ ОКНО
+========================================================= -->
+
+<div id="modalOverlay" class="modal-overlay hidden">
+    <div class="modal">
+        <h3 id="modalTitle"></h3>
+        <p id="modalText"></p>
+        <input type="text" id="modalInput" class="hidden" autocomplete="off" style="margin-bottom:10px;">
+        <div id="modalInputError" class="hidden" style="color:#b00000;font-size:13px;font-weight:700;margin:-6px 0 14px;"></div>
+        <button class="btn btn-primary" id="modalConfirmBtn">ОК</button>
+        <button class="btn btn-secondary" id="modalCancelBtn">Отмена</button>
+    </div>
+</div>
+
+
+<script src="firebase-config.js"></script>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import {
+    getDatabase, ref, set, get, update, onValue, onDisconnect, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-database.js";
+import {
+    getAuth, signInAnonymously, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+
+/* =========================================================
+   ИГРОВЫЕ ДАННЫЕ (раунды, темы, карточки Блица)
+
+   Без сервера эти списки нужно хранить прямо в коде страницы —
+   их видят все, кто откроет исходный код файла. Для дружеской
+   игры это нормальный компромисс (в локальной версии игры было
+   то же самое).
+========================================================= */
+
+const ROUND_TYPES = {
+    1: { type: "owls",  icon: "🦉", name: "Совы",       description: "Придумывай самые очевидные и популярные ответы. Чем больше совпадений с другими игроками — тем больше очков." },
+    2: { type: "larks", icon: "🐦", name: "Жаворонки",  description: "На этот раз наоборот: ищи необычные ответы. Очки получают ответы, которые НЕ совпали с другими игроками." },
+    3: { type: "blitz", icon: "⚡", name: "Блиц",       description: "Шесть разных категорий. Дай по одному ответу на каждую. Правила совпадений такие же, как у Сов." },
+    4: { type: "owls",  icon: "🦉", name: "Совы",       description: "Придумывай самые очевидные и популярные ответы." },
+    5: { type: "larks", icon: "🐦", name: "Жаворонки",  description: "Старайся дать ответы, которые не придут в голову другим игрокам." },
+    6: { type: "blitz", icon: "⚡", name: "Блиц",       description: "Финальный Блиц. Шесть разных категорий — шесть ответов." }
+};
+
+const TOTAL_ROUNDS = Object.keys(ROUND_TYPES).length;
+const ROUND_DURATION_MS = 60000;
+
+const OWL_TOPICS = [
+    "Причины опоздать","Известные злодеи","Вещи из детства","Причины не идти на работу",
+    "Странные подарки","Известные спортсмены","Места для первого свидания","Персонажи мультфильмов",
+    "Плохие суперспособности","Причины отменить планы","Популярные напитки","Известные актёры",
+    "Известные певцы","Популярные фильмы","Известные книги","Виды спорта","Породы собак",
+    "Породы кошек","Морские животные","Животные Африки","Птицы","Насекомые","Овощи","Фрукты",
+    "Десерты","Блюда на завтрак","Еда на пикнике","Еда в кинотеатре","Еда в дороге","Уличная еда",
+    "Пицца: начинки","Причины вернуться домой","Причины выйти из дома","Причины позвонить другу",
+    "Причины не брать трубку","Причины отменить встречу","Причины опоздать на встречу",
+    "Причины не отвечать на сообщение","Известные супергерои","Персонажи видеоигр",
+    "Персонажи сериалов","Персонажи книг","Персонажи сказок","Персонажи комедий",
+    "Известные режиссёры","Известные музыканты","Известные учёные","Известные предприниматели",
+    "Известные исторические личности","Известные космонавты","Известные путешественники",
+    "Известные художники","Известные писатели","Известные комики","Известные телеведущие",
+    "Популярные приложения","Популярные сайты","Популярные игры","Настольные игры",
+    "Компьютерные игры","Вещи геймера","Вещи программиста","Вещи путешественника",
+    "Вещи спортсмена","Вещи студента","Вещи школьника","Вещи туриста","Вещи автомобилиста",
+    "Вещи офисного работника","Вещи музыканта","Вещи фотографа","О чём люди спорят",
+    "О чём люди мечтают","О чём люди жалеют","О чём люди вспоминают"
+];
+
+const LARK_TOPICS = [
+    "Марки автомобилей","Породы собак","Породы кошек","Экзотические фрукты","Виды сыров",
+    "Сорта чая","Виды кофе","Виды пиццы","Сладости и шоколад","Орехи","Ягоды","Специи",
+    "Азиатская кухня","Итальянская кухня","Мексиканская кухня","Страны Европы","Столицы стран",
+    "Российские города","Острова","Моря","Большие кошки","Животные Африки","Морские животные",
+    "Насекомые","Музыкальные инструменты","Музыкальные жанры","Супергерои",
+    "Персонажи мультфильмов","Персонажи «Гарри Поттера»","Популярные видеоигры",
+    "Настольные игры","Футбольные клубы","Известные спортсмены","Спортивные бренды",
+    "Марки телефонов","Марки кроссовок","Бытовая техника","Виды обуви","Виды одежды"
+];
+
+const BLITZ_CARDS = [
+    ["Комедия","Лошадь","Марка автомобиля","Животное Австралии","Компьютерная игра","Крупная кошка"],
+    ["Спортивная игра","Предмет ухода за собой","Азиатский город","Рыба","Мясное блюдо","Рабочая профессия"],
+    ["Транспорт","Столица Азии","Завтрак","Канцелярский предмет","Мебель","Страна Южной Америки"],
+    ["Зимний спорт","Музыкальный фильм","Блюдо из картофеля","Известный автор","Горная вершина","Средство связи"],
+    ["Город США","Фильм-катастрофа","Американский город","Фильм о супергероях","Известная актриса","Примат"],
+    ["Европейский город","Художник","Рок-группа","Африканская страна","Морское животное","Анимационный фильм"],
+    ["Курортный город","Предмет одежды","Столица Южной Америки","Комедийный сериал","Вид единоборств","Профессия"],
+    ["Телевизионная программа","Животное Африки","Обувь","Компьютерный аксессуар","Исторический фильм","Род занятий"],
+    ["Город","Европейская столица","Фильм ужасов","Сыр","Музыкальный инструмент","Торт"],
+    ["Европейская страна","Спортивная одежда","Страна","Морской курорт","Конфета","Танец"],
+    ["Предмет для спорта","Бренд обуви","Предмет в офисе","Детский мультфильм","Десерт","Компьютерная программа"],
+    ["Спортивная обувь","Мультфильм","Салат","Актёр комедий","Автомобильная марка","Косметика"],
+    ["Летний вид спорта","Историческая книга","Магазин","Предмет в ванной","Персонаж мультфильма","Зимний вид спорта"],
+    ["Классическая книга","Мороженое","Бытовая техника","Змея","Рисовое блюдо","Техника для дома"],
+    ["Игра на телефоне","Фастфуд","Известный музыкант","Фруктовый десерт","Макаронное блюдо","Музыкальный жанр"],
+    ["Фантастический сериал","Супергеройский фильм","Страна Африки","Лесное животное","Растение","Земноводное"],
+    ["Комедийный актёр","Сладость","Приключенческая книга","Известный режиссёр","Молочный продукт","Остров"],
+    ["Классический фильм","Спортивный бренд","Шоколад","Музыкальный исполнитель","Комедийный фильм","Зимняя одежда"],
+    ["Печенье","Домашняя птица","Известный певец","Мультсериал","Предмет мебели","Азиатская столица"],
+    ["Актёр","Предмет кухни","Столица Европы","Инструмент","Спорт","Герой боевика"],
+    ["Ягода","Сериал","Научно-фантастический сериал","Телефонное приложение","Овощной салат","Телесериал"],
+    ["Карточная игра","Известный блогер","Фантастический фильм","Детективный фильм","Сериал о приключениях","Супергерой"],
+    ["Певица","Знак зодиака","Предмет в гараже","Смартфон","Косметическое средство","Река"],
+    ["Вид спорта","Страна Азии","Морская птица","Дикая птица","Сладкая выпечка","Морское млекопитающее"],
+    ["Фрукт","Предмет в спальне","Горный город","Жанр кино","Комикс","Магазин одежды"],
+    ["Хобби дома","Детективный сериал","Научно-популярная книга","Бытовой прибор","Настольная игра","Порода собаки"],
+    ["Цветок","Интернет-сервис","Озеро","Азиатская страна","Известный писатель","Телефонная марка"],
+    ["Паста","Кухонный прибор","Домашний питомец","Животное джунглей","Герой фильма","Млекопитающее"],
+    ["Музыкальная группа","Порода кошки","Суп","Электронное устройство","Книга","Предмет на кухне"],
+    ["Танцевальный стиль","Хищная птица","Выпечка","Крупное животное","Бренд техники","Режиссёр"],
+    ["Страна Европы","Блюдо","Собака","Известная книга","Город на море","Город России"],
+    ["Предмет в машине","Напиток","Профессия будущего","Спортивный фильм","Бренд одежды","Приключенческий фильм"],
+    ["Насекомое","Известная певица","Известный художник","Фэнтези-фильм","Детектив","Предмет в кабинете"],
+    ["Семейный фильм","Игра","Книга о приключениях","Фруктовый сок","Певец","Предмет интерьера"],
+    ["Дерево","Писатель-фантаст","Известный актёр","Электроника","Фильм 2000-х","Известный спортсмен"],
+    ["Домашнее животное","Стиль музыки","Известная писательница","Бургер","Горный курорт","Пирог"],
+    ["Хищник","Амфибия","Исторический сериал","Писатель","Ядовитое животное","Кухонная посуда"],
+    ["Праздник","Цвет","Известный фильм","Овощ","Грызун","Сладкий десерт"],
+    ["Столица","Известный персонаж","Электронный гаджет","Предмет спальни","Город Европы","Еда на завтрак"],
+    ["Блюдо из риса","Кошка","Актриса","Рептилия","Пицца","Предмет в школе"]
+];
+
+
+/* =========================================================
+   FIREBASE
+========================================================= */
+
+const firebaseApp = initializeApp(window.FIREBASE_CONFIG);
+const db = getDatabase(firebaseApp);
+const auth = getAuth(firebaseApp);
+
+
+/* =========================================================
+   СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+========================================================= */
+
+const state = {
+    uid: null,
+    roomCode: null,
+    isHost: false,
+    name: "",
+    room: null,
+    serverOffset: 0,
+    timerInterval: null,
+    lastVibratedSecond: null,
+    currentAnswers: []
+};
+
+// Локальное состояние "какой экран сейчас показан" — отдельно от
+// состояния комнаты в базе, потому что экран "проверка совпадений"
+// существует только на экране игрока и никогда не хранится в Firebase.
+let localPhase = "start";
+let lastAppliedRoundKey = null;
+
+
+/* =========================================================
+   ЛОКАЛЬНОЕ ХРАНИЛИЩЕ (какая комната + черновики ответов)
+========================================================= */
+
+function saveSession() {
+    try {
+        localStorage.setItem("sov_fb_session", JSON.stringify({ roomCode: state.roomCode }));
+    } catch (e) {}
+}
+
+function loadSession() {
+    try {
+        const raw = localStorage.getItem("sov_fb_session");
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+function clearSession() {
+    try { localStorage.removeItem("sov_fb_session"); } catch (e) {}
+}
+
+function answersKey(round) {
+    return `sov_fb_answers_${state.roomCode}_${round}`;
+}
+
+function saveAnswersDraft(round, answers) {
+    try { localStorage.setItem(answersKey(round), JSON.stringify(answers)); } catch (e) {}
+}
+
+function loadAnswersDraft(round) {
+    try {
+        const raw = localStorage.getItem(answersKey(round));
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+
+/* =========================================================
+   ЗВУК И ВИБРАЦИЯ (как в локальной версии игры)
+========================================================= */
+
+let audioCtx = null;
+
+function ensureAudioContext() {
+    if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+        audioCtx = new AudioContextClass();
+    }
+    if (audioCtx.state === "suspended") {
+        audioCtx.resume().catch(() => {});
+    }
+    return audioCtx;
+}
+
+function playBeep(frequency, durationMs) {
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+    try {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        oscillator.type = "sine";
+        oscillator.frequency.value = frequency;
+        const now = ctx.currentTime;
+        const durationSec = durationMs / 1000;
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.35, now + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + durationSec);
+        oscillator.connect(gain);
+        gain.connect(ctx.destination);
+        oscillator.start(now);
+        oscillator.stop(now + durationSec + 0.02);
+    } catch (e) {}
+}
+
+function vibrate(pattern) {
+    if (navigator.vibrate) {
+        try { navigator.vibrate(pattern); } catch (e) {}
+    }
+}
+
+
+/* =========================================================
+   ТАЙМЕР
+   Синхронизирован через Firebase ".info/serverTimeOffset" —
+   это штатный механизм Firebase для компенсации неточных часов
+   на устройстве. Общее "серверное время сейчас" = Date.now() + offset.
+========================================================= */
+
+function nowServerTime() {
+    return Date.now() + state.serverOffset;
+}
+
+function stopTimer() {
+    if (state.timerInterval) {
+        clearInterval(state.timerInterval);
+        state.timerInterval = null;
+    }
+}
+
+function startTimer(timerStartedAt) {
+    stopTimer();
+    state.lastVibratedSecond = null;
+    ensureAudioContext();
+
+    const timerEl = document.getElementById("timer");
+    timerEl.classList.remove("warning", "finished");
+
+    const tick = () => updateTimerTick(timerStartedAt);
+    tick();
+    state.timerInterval = setInterval(tick, 200);
+}
+
+function updateTimerTick(timerStartedAt) {
+    const timerEl = document.getElementById("timer");
+
+    const elapsed = nowServerTime() - timerStartedAt;
+    const remainingMs = ROUND_DURATION_MS - elapsed;
+    const secondsLeft = Math.max(0, Math.ceil(remainingMs / 1000));
+
+    if (secondsLeft <= 0) {
+        stopTimer();
+        timerEl.classList.remove("warning");
+        timerEl.classList.add("finished");
+        timerEl.textContent = "Время вышло";
+
+        if (state.lastVibratedSecond !== 0) {
+            state.lastVibratedSecond = 0;
+            vibrate([400]);
+            playBeep(1500, 450);
+        }
+
+        goToChecking();
+        return;
+    }
+
+    const minutes = Math.floor(secondsLeft / 60);
+    const seconds = secondsLeft % 60;
+    timerEl.textContent = `${minutes}:${String(seconds).padStart(2, "0")}`;
+
+    if (secondsLeft <= 10) timerEl.classList.add("warning");
+    else timerEl.classList.remove("warning");
+
+    if (secondsLeft <= 5 && state.lastVibratedSecond !== secondsLeft) {
+        state.lastVibratedSecond = secondsLeft;
+        const intensityMs = { 5: 60, 4: 100, 3: 150, 2: 220, 1: 300 };
+        vibrate([intensityMs[secondsLeft] || 60]);
+        playBeep(1000, 110);
+    }
+}
+
+
+/* =========================================================
+   ВСПОМОГАТЕЛЬНОЕ: выбор случайной неиспользованной темы/карточки
+========================================================= */
+
+function pickRandomUnused(poolLength, usedMap) {
+    const usedCount = usedMap ? Object.keys(usedMap).length : 0;
+
+    if (usedCount >= poolLength) {
+        // Пул исчерпан за эту игру — начинаем использовать его заново.
+        return { idx: Math.floor(Math.random() * poolLength), resetUsed: true };
+    }
+
+    let idx;
+    do {
+        idx = Math.floor(Math.random() * poolLength);
+    } while (usedMap && usedMap[idx]);
+
+    return { idx, resetUsed: false };
+}
+
+function sumRounds(rounds) {
+    if (!rounds) return 0;
+    return Object.values(rounds).reduce((sum, r) => sum + (r && r.score ? r.score : 0), 0);
+}
+
+function playersArray(room) {
+    const playersObj = (room && room.players) || {};
+    return Object.keys(playersObj)
+        .map(uid => {
+            const p = playersObj[uid];
+            const roundData = p.rounds && p.rounds[room.currentRound];
+            return {
+                uid,
+                name: p.name || "Игрок",
+                connected: p.connected !== false,
+                isHost: uid === room.hostUid,
+                totalScore: sumRounds(p.rounds),
+                submittedCurrentRound: !!(roundData && roundData.submitted),
+                joinedAt: p.joinedAt || 0
+            };
+        })
+        .sort((a, b) => a.joinedAt - b.joinedAt);
+}
+
+
+/* =========================================================
+   FIREBASE: ПОДКЛЮЧЕНИЕ, КОМНАТЫ, ПРИСУТСТВИЕ
+========================================================= */
+
+function wireServerClock() {
+    onValue(ref(db, ".info/serverTimeOffset"), (snap) => {
+        state.serverOffset = snap.val() || 0;
+    });
+}
+
+function setupPresence(code, uid) {
+    const myConnRef = ref(db, `rooms/${code}/players/${uid}/connected`);
+    onValue(ref(db, ".info/connected"), (snap) => {
+        if (snap.val() === true) {
+            onDisconnect(myConnRef).set(false);
+            set(myConnRef, true);
+        }
+    });
+}
+
+function subscribeRoom(code) {
+    onValue(ref(db, `rooms/${code}`), (snapshot) => {
+        applyRoom(snapshot.val());
+    });
+}
+
+async function generateUniqueRoomCode() {
+    for (let i = 0; i < 50; i++) {
+        const code = String(Math.floor(1000 + Math.random() * 9000));
+        const snap = await get(ref(db, `rooms/${code}/hostUid`));
+        if (!snap.exists()) return code;
+    }
+    return String(Date.now()).slice(-4);
+}
+
+async function tryRejoin() {
+    const saved = loadSession();
+    if (!saved || !saved.roomCode) return false;
+
+    try {
+        const playerSnap = await get(ref(db, `rooms/${saved.roomCode}/players/${state.uid}`));
+        const roomSnap = await get(ref(db, `rooms/${saved.roomCode}`));
+
+        if (!playerSnap.exists() || !roomSnap.exists()) {
+            clearSession();
+            return false;
+        }
+
+        state.roomCode = saved.roomCode;
+        state.name = playerSnap.val().name;
+        state.isHost = roomSnap.val().hostUid === state.uid;
+
+        subscribeRoom(state.roomCode);
+        setupPresence(state.roomCode, state.uid);
+        return true;
+    } catch (e) {
+        clearSession();
+        return false;
+    }
+}
+
+
+/* =========================================================
+   ДЕЙСТВИЯ ПОЛЬЗОВАТЕЛЯ
+========================================================= */
+
+async function actionCreateRoom() {
+    const name = document.getElementById("createNameInput").value.trim();
+    if (!name) {
+        document.getElementById("createNameInput").focus();
+        return;
+    }
+
+    const btn = document.querySelector('#screen-create .btn-primary');
+    btn.disabled = true;
+
+    try {
+        const code = await generateUniqueRoomCode();
+        const uid = state.uid;
+
+        const updates = {};
+        updates[`rooms/${code}/hostUid`] = uid;
+        updates[`rooms/${code}/phase`] = "lobby";
+        updates[`rooms/${code}/currentRound`] = 1;
+        updates[`rooms/${code}/totalRounds`] = TOTAL_ROUNDS;
+        updates[`rooms/${code}/roundContent`] = null;
+        updates[`rooms/${code}/timerStartedAt`] = null;
+        updates[`rooms/${code}/usedOwl`] = {};
+        updates[`rooms/${code}/usedLark`] = {};
+        updates[`rooms/${code}/usedBlitz`] = {};
+        updates[`rooms/${code}/createdAt`] = serverTimestamp();
+        updates[`rooms/${code}/lastActivity`] = serverTimestamp();
+        updates[`rooms/${code}/players/${uid}`] = { name, connected: true, joinedAt: serverTimestamp(), rounds: {} };
+
+        await update(ref(db), updates);
+
+        state.roomCode = code;
+        state.isHost = true;
+        state.name = name;
+        saveSession();
+
+        subscribeRoom(code);
+        setupPresence(code, uid);
+    } catch (e) {
+        showModal("Не получилось создать комнату", "Проверьте интернет-соединение и настройки Firebase (firebase-config.js). Техническая информация: " + e.message, null);
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+async function actionJoinRoom() {
+    const code = document.getElementById("joinCodeInput").value.trim();
+    const name = document.getElementById("joinNameInput").value.trim();
+
+    if (!/^[0-9]{4}$/.test(code)) {
+        showModal("Проверьте код", "Код комнаты — это 4 цифры, которые назвал ведущий.", null);
+        return;
+    }
+    if (!name) {
+        document.getElementById("joinNameInput").focus();
+        return;
+    }
+
+    const btn = document.querySelector('#screen-join .btn-primary');
+    btn.disabled = true;
+
+    try {
+        const roomSnap = await get(ref(db, `rooms/${code}`));
+        if (!roomSnap.exists()) {
+            showModal("Комната не найдена", "Проверьте код комнаты и попробуйте снова.", null);
+            return;
+        }
+
+        const uid = state.uid;
+        await set(ref(db, `rooms/${code}/players/${uid}`), {
+            name, connected: true, joinedAt: serverTimestamp(), rounds: {}
+        });
+        await update(ref(db, `rooms/${code}`), { lastActivity: serverTimestamp() });
+
+        state.roomCode = code;
+        state.isHost = roomSnap.val().hostUid === uid;
+        state.name = name;
+        saveSession();
+
+        subscribeRoom(code);
+        setupPresence(code, uid);
+    } catch (e) {
+        showModal("Не получилось присоединиться", "Проверьте интернет-соединение. Техническая информация: " + e.message, null);
+    } finally {
+        btn.disabled = false;
+    }
+}
+
+async function actionStartRound() {
+    const room = state.room;
+    if (!room || state.uid !== room.hostUid) return;
+
+    const info = ROUND_TYPES[room.currentRound];
+    const updates = {};
+    let content;
+
+    if (info.type === "owls") {
+        const { idx, resetUsed } = pickRandomUnused(OWL_TOPICS.length, room.usedOwl);
+        content = { type: "topic", topic: OWL_TOPICS[idx] };
+        updates[`rooms/${state.roomCode}/usedOwl`] = resetUsed ? { [idx]: true } : { ...(room.usedOwl || {}), [idx]: true };
+    } else if (info.type === "larks") {
+        const { idx, resetUsed } = pickRandomUnused(LARK_TOPICS.length, room.usedLark);
+        content = { type: "topic", topic: LARK_TOPICS[idx] };
+        updates[`rooms/${state.roomCode}/usedLark`] = resetUsed ? { [idx]: true } : { ...(room.usedLark || {}), [idx]: true };
+    } else {
+        const { idx, resetUsed } = pickRandomUnused(BLITZ_CARDS.length, room.usedBlitz);
+        content = { type: "blitz", categories: BLITZ_CARDS[idx] };
+        updates[`rooms/${state.roomCode}/usedBlitz`] = resetUsed ? { [idx]: true } : { ...(room.usedBlitz || {}), [idx]: true };
+    }
+
+    updates[`rooms/${state.roomCode}/roundContent`] = content;
+    updates[`rooms/${state.roomCode}/timerStartedAt`] = serverTimestamp();
+    updates[`rooms/${state.roomCode}/phase`] = "answering";
+    updates[`rooms/${state.roomCode}/lastActivity`] = serverTimestamp();
+
+    await update(ref(db), updates);
+}
+
+function actionFinishAnswering() {
+    goToChecking();
+}
+
+function actionSubmitScore() {
+    const checked = document.querySelectorAll(".match-checkbox:checked").length;
+
+    showModal(
+        "Подтвердить результат раунда?",
+        checked > 0
+            ? `Отмечено совпадений: ${checked}. После подтверждения изменить результат будет нельзя. Вы уверены?`
+            : "Вы не отметили ни одного совпадения — всё верно? После подтверждения изменить результат будет нельзя.",
+        doSubmitScore,
+        { confirmLabel: "Подтвердить", cancelLabel: "Вернуться назад" }
+    );
+}
+
+async function doSubmitScore() {
+    const room = state.room;
+    const checkboxes = Array.from(document.querySelectorAll(".match-checkbox"));
+    const matched = checkboxes.map(cb => cb.checked);
+    const info = ROUND_TYPES[room.currentRound];
+
+    let score = 0;
+    let bonus = 0;
+    const matches = matched.filter(Boolean).length;
+
+    if (info.type === "owls" || info.type === "blitz") {
+        score = matches;
+        if (matches === 6) { bonus = 1; score += 1; }
+    } else if (info.type === "larks") {
+        score = 6 - matches;
+        if (matches === 0) { bonus = 1; score += 1; }
+    }
+
+    await set(ref(db, `rooms/${state.roomCode}/players/${state.uid}/rounds/${room.currentRound}`), {
+        score, bonus, matches, submitted: true
+    });
+
+    document.getElementById("waitScoreNumber").textContent = score;
+    document.getElementById("waitBonusLabel").textContent =
+        bonus ? "Начислен бонус +1 за особый результат!" : "";
+    document.getElementById("waitRoundCounter").textContent =
+        `Раунд ${room.currentRound} / ${TOTAL_ROUNDS}`;
+    document.getElementById("waitHostControls").classList.toggle("hidden", !state.isHost);
+    document.getElementById("waitNonHostMessage").classList.toggle("hidden", state.isHost);
+    document.getElementById("waitNextBtn").textContent =
+        room.currentRound >= TOTAL_ROUNDS ? "Завершить игру" : "Следующий раунд";
+
+    // По умолчанию кнопка заблокирована — разблокируется, как только
+    // придёт свежий снимок комнаты, где видно, что все отметились
+    // (см. updateWaitControls, который вызывается из refreshPlayerListsInPlace).
+    document.getElementById("waitNextBtn").disabled = true;
+    document.getElementById("waitForceBtn").classList.add("hidden");
+    document.getElementById("waitPendingText").textContent = "";
+
+    showScreen("screen-round-wait");
+}
+
+async function advanceToNextRound(room) {
+    const updates = {};
+    const round = room.currentRound;
+    const playersObj = room.players || {};
+
+    // Тем, кто не успел отметить совпадения — засчитываем 0 за раунд,
+    // чтобы игра не зависала из-за отключившегося игрока.
+    Object.keys(playersObj).forEach(uid => {
+        const r = playersObj[uid].rounds && playersObj[uid].rounds[round];
+        if (!r || !r.submitted) {
+            updates[`rooms/${state.roomCode}/players/${uid}/rounds/${round}`] = { score: 0, bonus: 0, submitted: true, auto: true };
+        }
+    });
+
+    if (round >= TOTAL_ROUNDS) {
+        updates[`rooms/${state.roomCode}/phase`] = "finished";
+    } else {
+        updates[`rooms/${state.roomCode}/currentRound`] = round + 1;
+        updates[`rooms/${state.roomCode}/phase`] = "lobby";
+        updates[`rooms/${state.roomCode}/roundContent`] = null;
+        updates[`rooms/${state.roomCode}/timerStartedAt`] = null;
+    }
+    updates[`rooms/${state.roomCode}/lastActivity`] = serverTimestamp();
+
+    await update(ref(db), updates);
+}
+
+async function actionNextRound() {
+    const room = state.room;
+    if (!room || state.uid !== room.hostUid) return;
+
+    // Доп. защита: даже если кнопка каким-то образом оказалась активна,
+    // не пускаем дальше, пока не отметились все ПОДКЛЮЧЁННЫЕ игроки.
+    const pending = playersArray(room).filter(p => p.connected && !p.submittedCurrentRound);
+    if (pending.length > 0) return;
+
+    await advanceToNextRound(room);
+}
+
+async function actionForceNextRound() {
+    const room = state.room;
+    if (!room || state.uid !== room.hostUid) return;
+
+    const pending = playersArray(room).filter(p => p.connected && !p.submittedCurrentRound);
+    const names = pending.map(p => p.name).join(", ");
+
+    showModal(
+        "Продолжить без всех игроков?",
+        pending.length
+            ? `Ещё не отметились: ${names}. Им будет засчитано 0 очков за этот раунд. Продолжить?`
+            : "Продолжить к следующему раунду?",
+        () => advanceToNextRound(room)
+    );
+}
+
+async function actionRestartGame() {
+    const room = state.room;
+    if (!room || state.uid !== room.hostUid) return;
+
+    const updates = {};
+    updates[`rooms/${state.roomCode}/phase`] = "lobby";
+    updates[`rooms/${state.roomCode}/currentRound`] = 1;
+    updates[`rooms/${state.roomCode}/roundContent`] = null;
+    updates[`rooms/${state.roomCode}/timerStartedAt`] = null;
+    updates[`rooms/${state.roomCode}/usedOwl`] = {};
+    updates[`rooms/${state.roomCode}/usedLark`] = {};
+    updates[`rooms/${state.roomCode}/usedBlitz`] = {};
+    updates[`rooms/${state.roomCode}/lastActivity`] = serverTimestamp();
+
+    const playersObj = room.players || {};
+    Object.keys(playersObj).forEach(uid => {
+        updates[`rooms/${state.roomCode}/players/${uid}/rounds`] = null;
+    });
+
+    await update(ref(db), updates);
+}
+
+function actionEndGame() {
+    if (!state.room || state.uid !== state.room.hostUid) return;
+
+    showModal(
+        "Завершить игру для всех?",
+        "Игра закончится для всех игроков прямо сейчас, независимо от того, на каком вы раунде. Это нельзя отменить. Чтобы подтвердить, наберите слово «завершить» и нажмите ОК.",
+        doEndGame,
+        { requireTypedWord: "завершить", confirmLabel: "Завершить игру", cancelLabel: "Отмена" }
+    );
+}
+
+async function doEndGame() {
+    const room = state.room;
+    if (!room || state.uid !== room.hostUid) return;
+
+    await update(ref(db), {
+        [`rooms/${state.roomCode}/phase`]: "ended",
+        [`rooms/${state.roomCode}/timerStartedAt`]: null,
+        [`rooms/${state.roomCode}/lastActivity`]: serverTimestamp()
+    });
+}
+
+function actionReturnToStart() {
+    stopTimer();
+    clearSession();
+    location.reload();
+}
+
+/*
+ * Плавающая кнопка "Завершить игру" видна ведущему почти всегда —
+ * на лобби, на экране ответов, на проверке совпадений, на ожидании
+ * остальных. Скрываем её только когда игры по сути ещё/уже нет
+ * (стартовый экран, игра уже завершена/окончена).
+ */
+function updateEndGameButtonVisibility() {
+    const btn = document.getElementById("endGameFloatBtn");
+    const show = state.isHost
+        && state.room
+        && state.room.phase !== "ended"
+        && state.room.phase !== "finished";
+    btn.classList.toggle("hidden", !show);
+}
+
+
+/* =========================================================
+   ПЕРЕХОД К ПРОВЕРКЕ СОВПАДЕНИЙ (локально, не трогает Firebase)
+========================================================= */
+
+function goToChecking() {
+    stopTimer();
+
+    const inputs = Array.from(document.querySelectorAll("#answersContainer input"));
+    if (inputs.length) {
+        state.currentAnswers = inputs.map(i => i.value.trim());
+        saveAnswersDraft(state.room.currentRound, state.currentAnswers);
+    } else {
+        state.currentAnswers = loadAnswersDraft(state.room.currentRound) || [];
+    }
+
+    localPhase = "checking";
+    lastAppliedRoundKey = state.room.currentRound + ":" + state.room.timerStartedAt;
+
+    renderChecking();
+    showScreen("screen-checking");
+}
+
+
+/* =========================================================
+   ГЛАВНЫЙ ОБРАБОТЧИК ОБНОВЛЕНИЙ КОМНАТЫ
+========================================================= */
+
+function applyRoom(room) {
+    state.room = room;
+    refreshPlayerListsInPlace();
+    updateEndGameButtonVisibility();
+
+    if (!room) {
+        showModal("Комната закрыта", "Эта игровая комната больше не существует.", () => {
+            clearSession();
+            location.reload();
+        });
+        return;
+    }
+
+    if (room.phase === "ended") {
+        if (localPhase !== "ended") {
+            localPhase = "ended";
+            lastAppliedRoundKey = "ended";
+            stopTimer();
+            showScreen("screen-ended");
+        }
+        return;
+    }
+
+    if (room.phase === "finished") {
+        const key = "finished:" + room.currentRound;
+        const sorted = [...playersArray(room)].sort((a, b) => b.totalScore - a.totalScore);
+        renderFinal(sorted);
+        if (localPhase !== "finished" || lastAppliedRoundKey !== key) {
+            localPhase = "finished";
+            lastAppliedRoundKey = key;
+            showScreen("screen-final");
+        }
+        return;
+    }
+
+    if (room.phase === "answering" && room.roundContent && room.timerStartedAt != null) {
+        const roundKey = room.currentRound + ":" + room.timerStartedAt;
+        const elapsed = nowServerTime() - room.timerStartedAt;
+
+        if (elapsed >= ROUND_DURATION_MS) {
+            if (localPhase !== "checking" || lastAppliedRoundKey !== roundKey) {
+                lastAppliedRoundKey = roundKey;
+                localPhase = "checking";
+                state.currentAnswers = loadAnswersDraft(room.currentRound) || [];
+                renderChecking();
+                showScreen("screen-checking");
+            }
+            return;
+        }
+
+        if (lastAppliedRoundKey !== roundKey) {
+            lastAppliedRoundKey = roundKey;
+            localPhase = "answering";
+            renderAnswering();
+            startTimer(room.timerStartedAt);
+        }
+        return;
+    }
+
+    // phase === "lobby"
+    const lobbyKey = "lobby:" + room.currentRound;
+    if (localPhase !== "lobby" || lastAppliedRoundKey !== lobbyKey) {
+        lastAppliedRoundKey = lobbyKey;
+        localPhase = "lobby";
+        renderLobby();
+        showScreen("screen-lobby");
+    } else {
+        renderLobby();
+    }
+}
+
+
+/* =========================================================
+   РЕНДЕРИНГ ЭКРАНОВ
+========================================================= */
+
+function showScreen(id) {
+    document.querySelectorAll(".app-screen").forEach(el => el.classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+    window.scrollTo(0, 0);
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function renderPlayerRow(p, options) {
+    options = options || {};
+    const offlineClass = p.connected ? "" : " offline";
+    const hostBadge = p.isHost ? '<span class="badge badge-host">Ведущий</span>' : "";
+    const submittedBadge = (options.showSubmitted && p.submittedCurrentRound)
+        ? '<span class="badge badge-submitted">Отметил(а)</span>' : "";
+
+    return `
+        <div class="player-row${offlineClass}">
+            <div class="player-left">
+                <span class="dot"></span>
+                <span class="player-name">${escapeHtml(p.name)}</span>
+                ${hostBadge}
+                ${submittedBadge}
+            </div>
+            <div class="player-score">${p.totalScore}</div>
+        </div>
+    `;
+}
+
+function refreshPlayerListsInPlace() {
+    if (!state.room) return;
+    const players = playersArray(state.room);
+
+    const lobbyList = document.getElementById("lobbyPlayerList");
+    if (lobbyList && !document.getElementById("screen-lobby").classList.contains("hidden")) {
+        lobbyList.innerHTML = players.map(p => renderPlayerRow(p)).join("");
+    }
+
+    const waitList = document.getElementById("waitPlayerList");
+    if (waitList && !document.getElementById("screen-round-wait").classList.contains("hidden")) {
+        waitList.innerHTML = players.map(p => renderPlayerRow(p, { showSubmitted: true })).join("");
+        updateWaitControls(players);
+    }
+}
+
+/*
+ * Кнопка "Следующий раунд" у ведущего включается только тогда,
+ * когда ВСЕ подключённые игроки отметили свои совпадения (submitted).
+ * Отключившихся (connected: false) не ждём — иначе игра встанет
+ * намертво, если у кого-то разрядился телефон или пропал интернет.
+ */
+function updateWaitControls(players) {
+    if (!state.isHost) return;
+
+    const nextBtn = document.getElementById("waitNextBtn");
+    const pendingText = document.getElementById("waitPendingText");
+    const forceBtn = document.getElementById("waitForceBtn");
+
+    const pending = players.filter(p => p.connected && !p.submittedCurrentRound);
+
+    if (pending.length === 0) {
+        nextBtn.disabled = false;
+        pendingText.textContent = "";
+        forceBtn.classList.add("hidden");
+    } else {
+        nextBtn.disabled = true;
+        const names = pending.map(p => p.name).join(", ");
+        pendingText.textContent = `Ожидаем: ${names} — ещё не отметили совпадения`;
+        // "Аварийную" кнопку показываем не сразу, а только если
+        // кто-то реально завис надолго (чтобы не провоцировать
+        // ведущего торопить людей в первые секунды ожидания).
+        forceBtn.classList.remove("hidden");
+    }
+}
+
+function renderLobby() {
+    const room = state.room;
+    document.getElementById("lobbyRoundCounter").textContent =
+        `Раунд ${room.currentRound} / ${TOTAL_ROUNDS}`;
+
+    const codeBlock = document.getElementById("lobbyRoomCodeBlock");
+    if (state.isHost) {
+        codeBlock.classList.remove("hidden");
+        document.getElementById("lobbyRoomCode").textContent = state.roomCode;
+    } else {
+        codeBlock.classList.add("hidden");
+    }
+
+    const info = ROUND_TYPES[room.currentRound] || {};
+    document.getElementById("lobbyRoundIcon").textContent = info.icon || "";
+    document.getElementById("lobbyRoundName").textContent = info.name || "";
+    document.getElementById("lobbyRoundDescription").textContent = info.description || "";
+
+    document.getElementById("lobbyHostControls").classList.toggle("hidden", !state.isHost);
+    document.getElementById("lobbyWaitMessage").classList.toggle("hidden", state.isHost);
+
+    document.getElementById("lobbyPlayerList").innerHTML =
+        playersArray(room).map(p => renderPlayerRow(p)).join("");
+}
+
+function renderAnswering() {
+    const room = state.room;
+    const info = ROUND_TYPES[room.currentRound];
+    const content = room.roundContent;
+
+    document.getElementById("answerRoundCounter").textContent =
+        `Раунд ${room.currentRound} / ${TOTAL_ROUNDS}`;
+
+    const container = document.getElementById("answersContainer");
+    container.innerHTML = "";
+
+    const draft = loadAnswersDraft(room.currentRound) || [];
+
+    if (info.type === "blitz") {
+        document.getElementById("answerTopicBox").classList.add("hidden");
+        document.getElementById("answerInstruction").textContent =
+            "Дай по одному ответу на каждую категорию. Старайся писать самые очевидные ответы.";
+
+        content.categories.forEach((category, index) => {
+            const wrapper = document.createElement("div");
+            wrapper.className = "blitz-item";
+            wrapper.innerHTML = `
+                <div class="blitz-category">${index + 1}. ${escapeHtml(category)}</div>
+                <input type="text" maxlength="100" class="answer-input" data-index="${index}"
+                       autocomplete="off" placeholder="Твой ответ..." value="${escapeHtml(draft[index] || "")}">
+            `;
+            container.appendChild(wrapper);
+        });
+
+    } else {
+        document.getElementById("answerTopicBox").classList.remove("hidden");
+        document.getElementById("answerTopic").textContent = content.topic;
+        document.getElementById("answerInstruction").textContent =
+            info.type === "owls"
+                ? "Напиши 6 самых очевидных ответов. Нужны совпадения с другими игроками."
+                : "Напиши 6 менее очевидных ответов. Нужно, чтобы ответы НЕ совпали с другими.";
+
+        for (let i = 0; i < 6; i++) {
+            const row = document.createElement("div");
+            row.className = "answer-row";
+            row.innerHTML = `
+                <div class="answer-number">${i + 1}</div>
+                <input type="text" maxlength="100" class="answer-input" data-index="${i}"
+                       autocomplete="off" placeholder="Ответ ${i + 1}" value="${escapeHtml(draft[i] || "")}">
+            `;
+            container.appendChild(row);
+        }
+    }
+
+    container.querySelectorAll("input").forEach(input => {
+        input.addEventListener("input", () => {
+            const inputs = Array.from(container.querySelectorAll("input"));
+            saveAnswersDraft(room.currentRound, inputs.map(i => i.value));
+        });
+    });
+
+    showScreen("screen-answering");
+
+    setTimeout(() => {
+        const first = container.querySelector("input");
+        if (first) first.focus();
+    }, 50);
+}
+
+function renderChecking() {
+    const room = state.room;
+    const info = ROUND_TYPES[room.currentRound];
+
+    document.getElementById("checkRoundCounter").textContent =
+        `Раунд ${room.currentRound} / ${TOTAL_ROUNDS}`;
+
+    document.getElementById("checkIcon").textContent = info.icon;
+    document.getElementById("checkTitle").textContent = "Проверь совпадения";
+
+    document.getElementById("checkInstruction").textContent =
+        info.type === "larks"
+            ? "Сравните ответы с другими игроками вслух. Отметь свои ответы, которые совпали хотя бы с одним игроком — они НЕ принесут очков."
+            : "Сравните ответы с другими игроками вслух. Отметь каждый свой ответ, который совпал хотя бы с одним игроком.";
+
+    const answers = state.currentAnswers.length
+        ? state.currentAnswers
+        : (loadAnswersDraft(room.currentRound) || []);
+
+    const container = document.getElementById("checkContainer");
+    container.innerHTML = "";
+
+    answers.forEach((answer, index) => {
+        const row = document.createElement("label");
+        row.className = "check-row";
+        row.innerHTML = `
+            <input type="checkbox" class="match-checkbox" data-index="${index}">
+            <span class="check-answer">${escapeHtml(answer || "— пусто —")}</span>
+        `;
+        container.appendChild(row);
+    });
+}
+
+function renderFinal(sortedPlayers) {
+    const container = document.getElementById("finalLeaderboard");
+    container.innerHTML = sortedPlayers.map((p, index) => {
+        const rank = index + 1;
+        const firstClass = rank === 1 ? " first" : "";
+        const medal = rank === 1 ? "👑" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank;
+        return `
+            <div class="leaderboard-row${firstClass}">
+                <div class="rank">${medal}</div>
+                <div class="leaderboard-name">${escapeHtml(p.name)}</div>
+                <div class="leaderboard-score">${p.totalScore}</div>
+            </div>
+        `;
+    }).join("");
+
+    document.getElementById("finalHostControls").classList.toggle("hidden", !state.isHost);
+}
+
+
+/* =========================================================
+   МОДАЛЬНОЕ ОКНО
+========================================================= */
+
+function showModal(title, text, onConfirm, options) {
+    options = options || {};
+
+    document.getElementById("modalTitle").textContent = title;
+    document.getElementById("modalText").textContent = text;
+
+    const confirmBtn = document.getElementById("modalConfirmBtn");
+    const cancelBtn = document.getElementById("modalCancelBtn");
+    const inputEl = document.getElementById("modalInput");
+    const errorEl = document.getElementById("modalInputError");
+
+    confirmBtn.textContent = options.confirmLabel || "ОК";
+    cancelBtn.textContent = options.cancelLabel || "Отмена";
+
+    cancelBtn.classList.toggle("hidden", !onConfirm);
+
+    errorEl.classList.add("hidden");
+    errorEl.textContent = "";
+
+    const requiredWord = options.requireTypedWord || null;
+
+    if (requiredWord) {
+        inputEl.classList.remove("hidden");
+        inputEl.value = "";
+        inputEl.placeholder = `Введите слово «${requiredWord}»`;
+    } else {
+        inputEl.classList.add("hidden");
+        inputEl.value = "";
+    }
+
+    const tryConfirm = () => {
+        if (requiredWord) {
+            const typed = inputEl.value.trim().toLowerCase();
+            if (typed !== requiredWord.toLowerCase()) {
+                errorEl.textContent = `Слово введено неверно. Наберите точно «${requiredWord}», чтобы подтвердить.`;
+                errorEl.classList.remove("hidden");
+                inputEl.focus();
+                return;
+            }
+        }
+        closeModal();
+        if (onConfirm) onConfirm();
+    };
+
+    confirmBtn.onclick = tryConfirm;
+
+    inputEl.onkeydown = (e) => {
+        if (e.key === "Enter") tryConfirm();
+    };
+
+    cancelBtn.onclick = () => {
+        closeModal();
+        if (options.onCancel) options.onCancel();
+    };
+
+    document.getElementById("modalOverlay").classList.remove("hidden");
+
+    if (requiredWord) {
+        setTimeout(() => inputEl.focus(), 50);
+    }
+}
+
+function closeModal() {
+    document.getElementById("modalOverlay").classList.add("hidden");
+}
+
+
+/* =========================================================
+   СТАРТ ПРИЛОЖЕНИЯ
+========================================================= */
+
+document.getElementById("joinCodeInput").addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, "").slice(0, 4);
+});
+
+// Делаем функции доступными для onclick="..." в разметке —
+// при type="module" они не попадают в глобальную область автоматически.
+window.showScreen = showScreen;
+window.actionCreateRoom = actionCreateRoom;
+window.actionJoinRoom = actionJoinRoom;
+window.actionStartRound = actionStartRound;
+window.actionFinishAnswering = actionFinishAnswering;
+window.actionSubmitScore = actionSubmitScore;
+window.actionNextRound = actionNextRound;
+window.actionForceNextRound = actionForceNextRound;
+window.actionRestartGame = actionRestartGame;
+window.actionEndGame = actionEndGame;
+window.actionReturnToStart = actionReturnToStart;
+
+wireServerClock();
+
+onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+        try {
+            await signInAnonymously(auth);
+        } catch (e) {
+            showModal(
+                "Не удалось подключиться",
+                "Проверьте интернет-соединение и настройки Firebase в файле firebase-config.js. Техническая информация: " + e.message,
+                null
+            );
+        }
+        return; // onAuthStateChanged вызовется снова уже с пользователем
+    }
+
+    state.uid = user.uid;
+
+    const rejoined = await tryRejoin();
+    if (!rejoined) {
+        showScreen("screen-start");
+    }
+});
+
+</script>
+
+</body>
+</html>
